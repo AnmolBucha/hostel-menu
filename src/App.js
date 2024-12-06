@@ -1,23 +1,55 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import axios from "axios";
 
 function App() {
+  const [budget, setBudget] = useState("");
+  const [nutritionalGoals, setNutritionalGoals] = useState("");
+  const [menu, setMenu] = useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post("http://localhost:5000/generate-menu", {
+        budget,
+        nutritionalGoals,
+      });
+      setMenu(response.data.menu);
+    } catch (error) {
+      console.error("Error generating menu:", error);
+    }
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div style={{ padding: "20px", fontFamily: "Arial" }}>
+      <h1>Hostel Weekly Menu Generator</h1>
+      <form onSubmit={handleSubmit}>
+        <label>
+          Budget per week (₹):
+          <input
+            type="number"
+            value={budget}
+            onChange={(e) => setBudget(e.target.value)}
+            required
+          />
+        </label>
+        <br />
+        <label>
+          Nutritional Goals (e.g., calories, proteins, etc.):
+          <textarea
+            value={nutritionalGoals}
+            onChange={(e) => setNutritionalGoals(e.target.value)}
+            required
+          />
+        </label>
+        <br />
+        <button type="submit">Generate Menu</button>
+      </form>
+      {menu && (
+        <div>
+          <h2>Generated Weekly Menu</h2>
+          <pre>{JSON.stringify(menu, null, 2)}</pre>
+        </div>
+      )}
     </div>
   );
 }
